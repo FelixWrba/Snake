@@ -15,13 +15,26 @@ let speed = 200;
 let direction; // 1 = up, 2 = right, 3 = down, 4 = left
 let snake; // [ { x: int, y: int }, .. ]
 let highscore = +localStorage.getItem('highscore') || 0;
+let state;
 
 // apple
 let apple = {};
 let appleEaten = false;
 
+// anticheat
+function setState() {
+    state = snake.length * highscore;
+}
+
+function checkState() {
+    if(state != snake.length * highscore) {
+        stopGame('death');
+    }
+}
+
 // game loop
 function loop() {
+    checkState();
     if (appleEaten) {
         placeApple();
         appleEaten = false;
@@ -34,6 +47,7 @@ function loop() {
         x: snake[lastPart].x,
         y: snake[lastPart].y
     });
+    setState();
     lastPart = snake.length - 1;
     if (direction == 1) {
         snake[lastPart].y--;
@@ -90,7 +104,7 @@ function keyDown(e) {
         stopGame('death');
         startGame();
     }
-    else if(e.keyCode == 80) {
+    else if (e.keyCode == 80) {
         stopGame('cancel');
         startGame();
     }
@@ -105,6 +119,7 @@ function placeApple() {
 // starts the game
 function startGame() {
     snake = [{ x: 4, y: 4 }, { x: 5, y: 4 }];
+    setState();
     direction = 2;
     placeApple();
     loopId = setInterval(loop, speed);
@@ -130,10 +145,10 @@ function mainMenu() {
 function stopGame(page) {
     cancelAnimationFrame(animationId);
     clearInterval(loopId);
-    if(page == 'death') {
+    if (page == 'death') {
         deathScreen();
     }
-    else if(page == 'main'){
+    else if (page == 'main') {
         mainMenu();
     }
 }
